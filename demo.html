@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live Demo — R.I.P.P.A. AR Translator</title>
-<meta name="description" content="Interactive demo of R.I.P.P.A., the on-device AR translator for Apple Vision Pro. Watch real-time text detection and translation anchored in space.">
+<meta name="description" content="Interactive demo of R.I.P.P.A., the privacy-first AR translator for Apple Vision Pro. Watch real-time text detection and translation anchored in space.">
 <style>
   :root{
     --bg:#06080d; --panel:#0e1118; --line:#1c2332;
@@ -158,7 +158,7 @@
       <div class="corner bl"></div><div class="corner br"></div>
       <div class="status" id="status"></div>
       <div class="fps" id="fps">visionOS · 90 FPS</div>
-      <div class="hud-top"><span class="pill" id="mode">ON-DEVICE</span></div>
+      <div class="hud-top"><span class="pill" id="mode">PRIVATE</span></div>
       <div class="overlay" id="overlay"></div>
       <div class="hud-lang" id="lang"></div>
       <div class="vignette"></div>
@@ -174,8 +174,9 @@
 
   <p class="note">
     <b>Simulated demo.</b> This web experience illustrates how R.I.P.P.A. detects and translates
-    text in real time. In the app, capture, OCR and translation run <b>entirely on-device</b> on
-    Apple Vision Pro — no text or imagery leaves the headset. Scenes are original illustrations.
+    text in real time. In the app, capture and text recognition run <b>on-device</b> on Apple
+    Vision Pro &mdash; your camera view never leaves the headset &mdash; and translations are processed
+    privately and never stored. Scenes are original illustrations.
     <br>Press <b>Record mode</b> + <b>Auto-loop</b> for a hands-free capture. Press <b>Esc</b> to exit record mode.
   </p>
 
@@ -305,7 +306,7 @@ function setStatus(t){statusEl.innerHTML=`<span class="cur">▮</span> ${t}`;}
 async function run(){
   const my=++runId;
   playBtn.textContent='● Translating…';
-  modePill.className='pill'; modePill.textContent='ON-DEVICE';
+  modePill.className='pill'; modePill.textContent='PRIVATE';
   // reset overlay
   document.querySelectorAll('.box,.label').forEach(e=>e.classList.remove('show'));
   setStatus('INITIALIZING OPTICS · VISION FRAMEWORK');
@@ -326,7 +327,7 @@ async function run(){
   await wait(300); if(my!==runId)return;
 
   // translate labels
-  setStatus(`TRANSLATING · ${s.from} → ENGLISH · ON-DEVICE`);
+  setStatus(`TRANSLATING · ${s.from} → ENGLISH`);
   for(let j=0;j<s.regions.length;j++){
     document.getElementById('lab'+j)?.classList.add('show');
     await wait(240); if(my!==runId)return;
