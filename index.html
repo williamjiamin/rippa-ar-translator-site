@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R.I.P.P.A. - AR Translator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 720px;
+            width: 100%;
+            padding: 80px 24px 60px;
+            text-align: center;
+        }
+        .logo-glow {
+            width: 120px;
+            height: 120px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #0ff2, #0ff1);
+            border: 2px solid #0ff4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 32px;
+            box-shadow: 0 0 40px #0ff2, 0 0 80px #0ff1;
+        }
+        .logo-glow span {
+            font-size: 48px;
+            filter: drop-shadow(0 0 8px #0ff);
+        }
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        h1 .accent { color: #00ffff; }
+        .tagline {
+            font-size: 1.1rem;
+            color: #8899aa;
+            margin-bottom: 48px;
+            line-height: 1.6;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 48px;
+            text-align: left;
+        }
+        .feature {
+            background: #12141c;
+            border: 1px solid #1e2230;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .feature h3 {
+            color: #00ffff;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .feature p {
+            color: #8899aa;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+        }
+        .links a {
+            color: #00ffff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            padding: 12px 28px;
+            border: 1px solid #0ff3;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .links a:hover {
+            background: #0ff1;
+            border-color: #0ff6;
+            box-shadow: 0 0 20px #0ff2;
+        }
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #0ff, #06c);
+            color: #000;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            margin-bottom: 48px;
+        }
+        footer {
+            color: #445;
+            font-size: 0.8rem;
+            padding: 24px;
+        }
+        @media (max-width: 520px) {
+            .features { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-glow"><span>&#127760;</span></div>
+        <h1><span class="accent">R.I.P.P.A.</span> &mdash; AR Translator</h1>
+        <p class="tagline">
+            Real-time augmented reality translation for Apple Vision Pro.<br>
+            See the world in your language &mdash; entirely on-device, entirely private.
+        </p>
+        <div class="badge">100% On-Device &middot; Zero Data Collection</div>
+        <div class="features">
+            <div class="feature">
+                <h3>On-Device OCR</h3>
+                <p>Apple Vision framework reads text from the world around you. Nothing leaves your device.</p>
+            </div>
+            <div class="feature">
+                <h3>On-Device Translation</h3>
+                <p>Apple Foundation Models translate text locally with no cloud dependency.</p>
+            </div>
+            <div class="feature">
+                <h3>AR Overlay</h3>
+                <p>Translations appear right where the original text is, anchored in your space.</p>
+            </div>
+            <div class="feature">
+                <h3>Voice Output</h3>
+                <p>Hear translations spoken aloud via on-device speech synthesis.</p>
+            </div>
+        </div>
+        <div class="links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Use</a>
+        </div>
+    </div>
+    <footer>&copy; 2026 Rippa. All rights reserved.</footer>
+</body>
+</html>

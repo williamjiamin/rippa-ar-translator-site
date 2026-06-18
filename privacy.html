@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - R.I.P.P.A. AR Translator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+            background: #0a0a0f;
+            color: #c8c8d0;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+        .back {
+            display: inline-block;
+            color: #00ffff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .back:hover { opacity: 1; }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .effective {
+            color: #556;
+            font-size: 0.85rem;
+            margin-bottom: 40px;
+        }
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00ffff;
+            margin-top: 40px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1e2230;
+        }
+        p { margin-bottom: 14px; }
+        ul {
+            margin: 0 0 14px 24px;
+        }
+        li { margin-bottom: 8px; }
+        strong { color: #e0e0e8; }
+        a { color: #00ffff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .highlight {
+            background: #0ff08;
+            border-left: 3px solid #00ffff;
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            color: #d0d0d8;
+        }
+        footer {
+            text-align: center;
+            color: #445;
+            font-size: 0.8rem;
+            padding: 24px;
+            margin-top: 40px;
+            border-top: 1px solid #1a1a24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back">&larr; Back to Home</a>
+        <h1>Privacy Policy</h1>
+        <p class="effective">Effective Date: June 10, 2026</p>
+
+        <div class="highlight">
+            <strong>R.I.P.P.A. &mdash; AR Translator</strong> is designed with privacy at its core. Captured images never leave your device. Recognized text is sent to our translation service only to produce translations, is processed transiently, and is never stored or linked to you. Location tagging is optional and off unless you grant permission.
+        </div>
+
+        <h2>1. Overview</h2>
+        <p>R.I.P.P.A. &mdash; AR Translator ("the App") is an augmented reality translation application for Apple Vision Pro developed by Rippa ("we", "us", or "our"). This Privacy Policy explains how the App handles your information.</p>
+        <p>Image processing (OCR) happens on your device. For translation, the App first tries our cloud translation service and falls back to Apple's on-device Foundation Models when offline.</p>
+
+        <h2>2. Information We Collect</h2>
+        <p><strong>We do not collect or store personal information.</strong> The App has no user accounts, no login, no analytics, no tracking, and no telemetry. Specifically:</p>
+        <ul>
+            <li>No names, email addresses, or contact information</li>
+            <li>No device identifiers or advertising IDs</li>
+            <li>No usage analytics or behavioral tracking</li>
+            <li>No cookies or similar technologies</li>
+            <li>Location is used only as described in Section 5, and only with your permission</li>
+        </ul>
+
+        <h2>3. Photo Library Access and Captured Images</h2>
+        <p>The App may request access to your photo library to process screenshots for OCR (optical character recognition) text extraction. When you grant this access:</p>
+        <ul>
+            <li>Images are processed <strong>entirely on your device</strong> using Apple's Vision framework</li>
+            <li>Images are <strong>never uploaded, transmitted, or sent</strong> to any server &mdash; only the recognized text is sent for translation (see Section 4)</li>
+            <li>Images are <strong>not stored</strong> by the App beyond the immediate processing session</li>
+            <li>The App does not scan your photo library; it reacts only to new screenshots you take to trigger a translation</li>
+        </ul>
+
+        <h2>4. Translation of Recognized Text</h2>
+        <p>To translate the text the App recognizes, it sends <strong>only that text</strong> (never images, never your identity) to our translation service hosted on Cloudflare Workers, where it is translated by a machine-translation model (Meta m2m100 via Cloudflare Workers AI).</p>
+        <ul>
+            <li>Requests contain the recognized text and the source/target language codes &mdash; no account, name, or device identifier</li>
+            <li>Text is processed transiently to produce the translation and is <strong>not stored</strong> by us</li>
+            <li>Transmission uses HTTPS encryption</li>
+            <li>If the service is unreachable, the App translates <strong>on-device</strong> using Apple Foundation Models instead &mdash; avoid scanning sensitive documents if you do not want their text sent for translation</li>
+        </ul>
+
+        <h2>5. Location and Translation History (Optional)</h2>
+        <p>The App can tag your translation history with where each scan happened. This is <strong>optional</strong> and happens only if you grant location permission when asked:</p>
+        <ul>
+            <li>Your approximate coordinates are attached to history entries stored <strong>locally on your device</strong></li>
+            <li>To show a readable place name, coordinates (and nothing else) are sent to the <a href="https://operations.osmfoundation.org/policies/nominatim/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a> reverse-geocoding service</li>
+            <li>If you deny location permission, everything else works normally and no location is collected</li>
+        </ul>
+        <p>Your translation history (original text, translation, optional location) is stored <strong>only on your device</strong>. We have no access to it. You can export it yourself as a file at any time.</p>
+
+        <h2>6. Hand Tracking Data</h2>
+        <p>The App uses ARKit hand tracking to enable gesture-based interactions in augmented reality. This data:</p>
+        <ul>
+            <li>Is processed <strong>entirely on your device</strong> by Apple's ARKit framework</li>
+            <li>Is used only in real time for gesture recognition</li>
+            <li>Is <strong>never recorded, stored, or transmitted</strong></li>
+            <li>Is discarded immediately after each frame is processed</li>
+        </ul>
+
+        <h2>7. On-Device Processing</h2>
+        <p>These features run entirely on your device and work without any network connection:</p>
+        <ul>
+            <li><strong>OCR:</strong> Text recognition is performed on-device using Apple's Vision framework</li>
+            <li><strong>Offline translation:</strong> When the cloud service is unreachable, translation runs on-device using Apple Foundation Models</li>
+            <li><strong>Text-to-Speech:</strong> Audio output is generated on-device using AVSpeechSynthesizer</li>
+        </ul>
+
+        <h2>8. Subscriptions and Purchases</h2>
+        <p>The App offers purchases (including a one-time lifetime unlock and subscription options) managed through Apple's StoreKit 2 framework. All purchase transactions are processed by Apple and subject to <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">Apple's Privacy Policy</a>.</p>
+        <ul>
+            <li>We do <strong>not</strong> receive or store your payment information (credit card numbers, billing address, etc.)</li>
+            <li>We do <strong>not</strong> have access to your Apple ID or account details</li>
+            <li>Purchase validation is handled on-device through StoreKit 2</li>
+        </ul>
+
+        <h2>9. Third-Party Services</h2>
+        <p>The App integrates no analytics, advertising, or crash-reporting SDKs. The external services it talks to are:</p>
+        <ul>
+            <li><strong>Cloudflare Workers AI</strong> &mdash; runs the machine-translation model on text we relay for translation (<a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare Privacy Policy</a>)</li>
+            <li><strong>OpenStreetMap Nominatim</strong> &mdash; converts coordinates to place names for optional history tagging (<a href="https://wiki.osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener">OSMF Privacy Policy</a>)</li>
+            <li><strong>Apple App Store / StoreKit</strong> &mdash; purchase management, governed by Apple's privacy policy</li>
+        </ul>
+
+        <h2>10. Children's Privacy</h2>
+        <p>The App is not directed at children under the age of 13. We do not knowingly collect any personal information from children.</p>
+
+        <h2>11. Data Security</h2>
+        <p>Captured images and your translation history never leave your device. Text sent for translation travels over HTTPS, is processed transiently, and is not stored or associated with any identity.</p>
+
+        <h2>12. Changes to This Privacy Policy</h2>
+        <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated effective date. We encourage you to review this page periodically. Your continued use of the App after any changes constitutes acceptance of the updated policy.</p>
+
+        <h2>13. Contact Us</h2>
+        <p>If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
+        <p><strong>Email:</strong> <a href="mailto:support@rippa.app">support@rippa.app</a></p>
+    </div>
+    <footer>&copy; 2026 Rippa. All rights reserved.</footer>
+</body>
+</html>
