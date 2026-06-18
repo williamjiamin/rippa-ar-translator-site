@@ -108,6 +108,22 @@
             letter-spacing: 0.5px;
             margin-bottom: 48px;
         }
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #0ff, #06c);
+            color: #001;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            padding: 15px 34px;
+            border-radius: 12px;
+            margin: 0 auto 56px;
+            box-shadow: 0 0 30px #0ff4;
+            transition: all 0.2s;
+        }
+        .cta:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 0 44px #0ff6; }
         footer {
             color: #445;
             font-size: 0.8rem;
@@ -128,6 +144,8 @@
             See the world in your language &mdash; entirely on-device, entirely private.
         </p>
         <div class="badge">100% On-Device &middot; Zero Data Collection</div>
+        <br>
+        <a class="cta" href="demo.html">&#9654;&nbsp; Try the Live AR Demo</a>
         <div class="features">
             <div class="feature">
                 <h3>On-Device OCR</h3>

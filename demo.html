@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Demo — R.I.P.P.A. AR Translator</title>
+<meta name="description" content="Interactive demo of R.I.P.P.A., the on-device AR translator for Apple Vision Pro. Watch real-time text detection and translation anchored in space.">
+<style>
+  :root{
+    --bg:#06080d; --panel:#0e1118; --line:#1c2332;
+    --cyan:#00ffff; --cyan-dim:#0bd; --ink:#e6f3f6; --muted:#7d93a6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif}
+  body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 48px}
+
+  .topbar{width:100%;max-width:1040px;display:flex;align-items:center;
+    justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .dot{width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,#0ff3,#0ff1);border:1.5px solid #0ff5;
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+    box-shadow:0 0 22px #0ff3}
+  .brand b{color:#fff;letter-spacing:.5px}
+  .brand .accent{color:var(--cyan)}
+  .brand small{display:block;color:var(--muted);font-size:.72rem;letter-spacing:.5px}
+  .home{color:var(--muted);text-decoration:none;font-size:.85rem;
+    border:1px solid var(--line);padding:8px 16px;border-radius:8px;transition:.2s}
+  .home:hover{color:var(--cyan);border-color:#0ff4}
+
+  /* ---- Stage : the AR viewport ---- */
+  .stage{position:relative;width:100%;max-width:1040px;aspect-ratio:16/9;
+    border-radius:18px;overflow:hidden;background:#000;
+    border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 0 1px #0ff1 inset}
+  .scene{position:absolute;inset:0;transition:opacity .5s}
+  .scene.bgimg{background-size:cover;background-position:center}
+
+  /* signage rendered from data so overlays anchor perfectly */
+  .sign{position:absolute;transform:translate(-50%,-50%);text-align:center;
+    line-height:1.15;white-space:nowrap;letter-spacing:.5px;user-select:none}
+  .sign.vert{writing-mode:vertical-rl;white-space:normal}
+  .sign.neon{color:#ffd9a0;text-shadow:0 0 8px #ffb86b,0 0 22px #ff9a4d;font-weight:700}
+  .sign.neonc{color:#ffe3e3;text-shadow:0 0 8px #ff5a5a,0 0 22px #ff2d2d;font-weight:800}
+  .sign.chalk{color:#f4efe2;font-family:'Bradley Hand','Comic Sans MS',cursive;font-weight:700}
+  .sign.panel{color:#d8ffe6;font-weight:700;font-family:'SF Mono',ui-monospace,monospace}
+  .sign.plate{color:#dfe9ef;font-weight:700}
+
+  /* ---- HUD overlay ---- */
+  .hud{position:absolute;inset:0;pointer-events:none}
+  .corner{position:absolute;width:34px;height:34px;border:2px solid #0ff7;opacity:.85}
+  .corner.tl{top:14px;left:14px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
+  .corner.tr{top:14px;right:14px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+  .corner.bl{bottom:14px;left:14px;border-right:0;border-top:0;border-radius:0 0 0 6px}
+  .corner.br{bottom:14px;right:14px;border-left:0;border-top:0;border-radius:0 0 6px 0}
+
+  .hud-top{position:absolute;top:20px;left:50%;transform:translateX(-50%);
+    display:flex;gap:10px;align-items:center}
+  .pill{background:rgba(8,14,20,.7);backdrop-filter:blur(6px);border:1px solid #0ff4;
+    color:var(--cyan);font-size:.7rem;letter-spacing:1.5px;padding:6px 12px;
+    border-radius:20px;text-transform:uppercase}
+  .pill.live{color:#7fffb0;border-color:#3f9}
+  .pill .blink{display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:#3f9;margin-right:6px;box-shadow:0 0 8px #3f9;animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.25}}
+
+  .hud-lang{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+    display:flex;align-items:center;gap:10px;background:rgba(8,14,20,.72);
+    backdrop-filter:blur(6px);border:1px solid var(--line);padding:8px 16px;border-radius:24px}
+  .hud-lang .from{color:#fff;font-weight:600}
+  .hud-lang .arrow{color:var(--cyan);font-size:1.1rem}
+  .hud-lang .to{color:var(--cyan);font-weight:600}
+  .hud-lang .flag{font-size:1.1rem;margin-right:2px}
+
+  .status{position:absolute;top:20px;left:24px;font-family:'SF Mono',ui-monospace,monospace;
+    font-size:.7rem;color:var(--cyan);letter-spacing:1px;max-width:60%}
+  .status .cur{opacity:.55}
+  .fps{position:absolute;top:20px;right:24px;font-family:'SF Mono',ui-monospace,monospace;
+    font-size:.7rem;color:var(--muted);letter-spacing:1px;text-align:right}
+
+  /* scan sweep */
+  .scan{position:absolute;left:0;right:0;height:160px;top:-160px;opacity:0;
+    background:linear-gradient(to bottom,transparent,#0ff2 60%,#0ff9 92%,#fff 100%);
+    box-shadow:0 0 30px #0ff8;mix-blend-mode:screen}
+  .scan.run{animation:sweep 1.5s cubic-bezier(.4,0,.2,1) forwards}
+  @keyframes sweep{0%{top:-160px;opacity:0}8%{opacity:1}92%{opacity:1}100%{top:100%;opacity:0}}
+
+  /* detection box */
+  .box{position:absolute;transform:translate(-50%,-50%);border:1.5px solid #0ff;
+    border-radius:6px;box-shadow:0 0 14px #0ff6,0 0 4px #0ff inset;opacity:0;
+    transition:opacity .25s,transform .25s;background:rgba(0,255,255,.06)}
+  .box.show{opacity:1}
+  .box .tag{position:absolute;top:-16px;left:-1px;font-family:'SF Mono',monospace;
+    font-size:.55rem;color:#031;background:var(--cyan);padding:1px 5px;border-radius:3px;
+    letter-spacing:.5px;white-space:nowrap}
+
+  /* translation label */
+  .label{position:absolute;transform:translate(-50%,-50%) scale(.8);
+    background:rgba(6,16,22,.86);backdrop-filter:blur(10px);
+    border:1px solid #0ff8;border-radius:10px;padding:7px 13px;text-align:center;
+    box-shadow:0 6px 26px rgba(0,0,0,.55),0 0 18px #0ff3;opacity:0;
+    transition:opacity .3s ease,transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+  .label.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  .label .src{display:block;color:var(--muted);font-size:.62rem;letter-spacing:.5px;margin-bottom:2px}
+  .label .dst{display:block;color:#fff;font-weight:700;font-size:.92rem}
+  .label .dst .ic{color:var(--cyan);font-size:.8em;margin-left:6px;opacity:.9}
+
+  .vignette{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% 40%,transparent 55%,rgba(0,0,0,.55) 100%)}
+
+  /* ---- controls ---- */
+  .controls{width:100%;max-width:1040px;margin-top:18px;display:flex;
+    align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel);color:var(--ink);padding:11px 20px;transition:.18s;letter-spacing:.3px}
+  button:hover{border-color:#0ff5;color:var(--cyan)}
+  button.primary{background:linear-gradient(135deg,#0ff,#06c);color:#001;font-weight:700;border:0;
+    box-shadow:0 0 24px #0ff4}
+  button.primary:hover{color:#001;filter:brightness(1.08)}
+  .scenes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .scenes button{padding:9px 14px;font-size:.85rem}
+  .scenes button.active{border-color:#0ff;color:var(--cyan);box-shadow:0 0 16px #0ff3}
+  .toggle{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.85rem;
+    border:1px solid var(--line);padding:9px 14px;border-radius:10px;user-select:none}
+  .toggle input{accent-color:var(--cyan);width:15px;height:15px}
+
+  .note{max-width:1040px;color:var(--muted);font-size:.78rem;line-height:1.6;
+    margin-top:22px;text-align:center;border-top:1px solid var(--line);padding-top:18px}
+  .note b{color:#9fb4c4}
+
+  /* record mode: hide chrome, just the stage */
+  body.rec .topbar,body.rec .controls,body.rec .note{display:none}
+  body.rec{padding:0;justify-content:center}
+  body.rec .stage{max-width:none;width:100vw;height:100vh;aspect-ratio:auto;border-radius:0;border:0}
+
+  @media(max-width:640px){
+    .sign{font-size:.78em}
+    .hud-lang,.status,.fps{font-size:.62rem}
+    .label .dst{font-size:.8rem}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="dot">🌐</div>
+      <div><b><span class="accent">R.I.P.P.A.</span> AR Translator</b>
+        <small>LIVE DEMO · APPLE VISION PRO</small></div>
+    </div>
+    <a class="home" href="index.html">← Home</a>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="scene" id="scene"></div>
+    <div class="hud">
+      <div class="scan" id="scan"></div>
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="status" id="status"></div>
+      <div class="fps" id="fps">visionOS · 90 FPS</div>
+      <div class="hud-top"><span class="pill" id="mode">ON-DEVICE</span></div>
+      <div class="overlay" id="overlay"></div>
+      <div class="hud-lang" id="lang"></div>
+      <div class="vignette"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="primary" id="play">▶ Run translation</button>
+    <div class="scenes" id="sceneTabs"></div>
+    <label class="toggle"><input type="checkbox" id="loop"> Auto-loop</label>
+    <button id="record" title="Hide UI for clean screen recording">⤢ Record mode</button>
+  </div>
+
+  <p class="note">
+    <b>Simulated demo.</b> This web experience illustrates how R.I.P.P.A. detects and translates
+    text in real time. In the app, capture, OCR and translation run <b>entirely on-device</b> on
+    Apple Vision Pro — no text or imagery leaves the headset. Scenes are original illustrations.
+    <br>Press <b>Record mode</b> + <b>Auto-loop</b> for a hands-free capture. Press <b>Esc</b> to exit record mode.
+  </p>
+
+<script>
+const SCENES = [
+  { id:'jp', name:'🇯🇵 Tokyo Alley', flag:'🇯🇵', from:'日本語', to:'English',
+    theme:'tokyo',
+    regions:[
+      {x:24,y:34,kind:'neon',vert:true,size:30,src:'居酒屋',dst:'Izakaya (Pub)'},
+      {x:73,y:28,kind:'neonc',vert:true,size:26,src:'ラーメン',dst:'Ramen'},
+      {x:50,y:62,kind:'neon',size:22,src:'営業中',dst:'Open'},
+      {x:80,y:70,kind:'plate',size:16,src:'生ビール',dst:'Draft Beer'},
+      {x:20,y:74,kind:'plate',size:15,src:'立入禁止',dst:'No Entry'},
+    ]},
+  { id:'fr', name:'🇫🇷 Paris Café', flag:'🇫🇷', from:'Français', to:'English',
+    theme:'paris',
+    regions:[
+      {x:50,y:20,kind:'plate',size:26,src:'Café de la Gare',dst:'Station Café'},
+      {x:28,y:55,kind:'chalk',size:24,src:'Plat du jour',dst:'Dish of the Day'},
+      {x:30,y:68,kind:'chalk',size:17,src:'Croissant — 2€',dst:'Croissant — €2'},
+      {x:74,y:40,kind:'plate',size:18,src:'Ouvert',dst:'Open'},
+      {x:75,y:72,kind:'plate',size:15,src:'Terrasse',dst:'Terrace'},
+    ]},
+  { id:'de', name:'🇩🇪 Bahnhof', flag:'🇩🇪', from:'Deutsch', to:'English',
+    theme:'station',
+    regions:[
+      {x:26,y:24,kind:'panel',size:24,src:'Ausgang',dst:'Exit'},
+      {x:72,y:24,kind:'panel',size:24,src:'Gleis 4',dst:'Platform 4'},
+      {x:50,y:50,kind:'panel',size:20,src:'Abfahrt',dst:'Departures'},
+      {x:28,y:72,kind:'plate',size:16,src:'Fahrkarten',dst:'Tickets'},
+      {x:73,y:72,kind:'plate',size:16,src:'Vorsicht',dst:'Caution'},
+    ]},
+  { id:'cn', name:'🇨🇳 Night Market', flag:'🇨🇳', from:'中文', to:'English',
+    theme:'market',
+    regions:[
+      {x:50,y:22,kind:'neonc',size:30,src:'欢迎光临',dst:'Welcome'},
+      {x:24,y:48,kind:'neon',vert:true,size:28,src:'面馆',dst:'Noodle House'},
+      {x:76,y:46,kind:'neonc',vert:true,size:26,src:'营业中',dst:'Open'},
+      {x:50,y:70,kind:'plate',size:16,src:'小心地滑',dst:'Caution: Wet Floor'},
+      {x:82,y:74,kind:'plate',size:16,src:'出口',dst:'Exit'},
+    ]},
+];
+
+const THEMES = {
+  tokyo:'radial-gradient(80% 60% at 30% 20%,#241016,transparent),radial-gradient(70% 70% at 78% 30%,#0a1c24,transparent),linear-gradient(#0a0810,#140a12 60%,#05070c)',
+  paris:'radial-gradient(90% 50% at 50% 0%,#3a2a18,transparent),linear-gradient(#1a130c,#241a10 50%,#0d0a07)',
+  station:'radial-gradient(100% 60% at 50% 10%,#16202b,transparent),linear-gradient(#0a0f15,#0e151d 60%,#070a0e)',
+  market:'radial-gradient(80% 60% at 50% 10%,#2a0d10,transparent),radial-gradient(60% 60% at 20% 60%,#1c0a18,transparent),linear-gradient(#0c0608,#160a0c 60%,#05060a)',
+};
+
+// decorative backdrop layers per theme (pure CSS/SVG, no external assets)
+function backdrop(theme){
+  if(theme==='tokyo') return `
+    <svg viewBox="0 0 100 56" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+      <rect x="0" y="0" width="14" height="56" fill="#0d0a12"/><rect x="86" y="0" width="14" height="56" fill="#0d0a12"/>
+      <rect x="14" y="0" width="6" height="56" fill="#120c10"/><rect x="80" y="0" width="6" height="56" fill="#120c10"/>
+      ${lanterns()}
+    </svg>`;
+  if(theme==='paris') return `
+    <div style="position:absolute;top:0;left:0;right:0;height:11%;background:repeating-linear-gradient(90deg,#7a2b2b 0 6%,#f1e9d8 6% 12%)"></div>
+    <div style="position:absolute;top:11%;left:0;right:0;height:3%;background:#4a1c1c"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(#1d140c,#0c0805)"></div>`;
+  if(theme==='station') return `
+    <div style="position:absolute;top:14%;left:10%;right:10%;height:30%;background:linear-gradient(#0c141c,#060b10);border:1px solid #16222e;border-radius:8px;box-shadow:0 0 40px #0ff1 inset"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:40%;background:repeating-linear-gradient(90deg,#0a0f14 0 8%,#0c1218 8% 16%)"></div>`;
+  if(theme==='market') return `
+    <svg viewBox="0 0 100 56" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">${lanterns(true)}</svg>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:34%;background:linear-gradient(#160a0c,#070406)"></div>`;
+  return '';
+}
+function lanterns(red){
+  let s='';const c=red?'#e23':'#e83';
+  const pos=[[10,8],[28,5],[50,9],[72,5],[90,8],[18,16],[82,15]];
+  for(const[x,y]of pos)s+=`<circle cx="${x}" cy="${y}" r="2.6" fill="${c}" opacity=".5"/><circle cx="${x}" cy="${y}" r="1.3" fill="#ffd" opacity=".7"/>`;
+  return s;
+}
+
+const sceneEl=document.getElementById('scene');
+const overlay=document.getElementById('overlay');
+const scan=document.getElementById('scan');
+const statusEl=document.getElementById('status');
+const langEl=document.getElementById('lang');
+const modePill=document.getElementById('mode');
+const tabsEl=document.getElementById('sceneTabs');
+const playBtn=document.getElementById('play');
+const loopChk=document.getElementById('loop');
+
+let current=0, runId=0;
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+// build scene tabs
+SCENES.forEach((s,i)=>{
+  const b=document.createElement('button');
+  b.textContent=s.name; b.onclick=()=>{select(i);run();};
+  tabsEl.appendChild(b);
+});
+
+function renderScene(i){
+  const s=SCENES[i];
+  sceneEl.style.background=THEMES[s.theme];
+  sceneEl.innerHTML=backdrop(s.theme)+s.regions.map(r=>
+    `<div class="sign ${r.kind}${r.vert?' vert':''}" style="left:${r.x}%;top:${r.y}%;font-size:${r.size}px">${r.src}</div>`
+  ).join('');
+  overlay.innerHTML=s.regions.map((r,j)=>{
+    // anchor the chip below signs near the top edge so it never collides with HUD chrome
+    const off=r.vert?14:11;
+    const labelTop=Math.min(86,Math.max(15, r.y>26 ? r.y-off : r.y+off));
+    return `<div class="box" id="box${j}" style="left:${r.x}%;top:${r.y}%;width:${boxW(r)}px;height:${boxH(r)}px">
+        <span class="tag">99% · txt</span></div>
+      <div class="label" id="lab${j}" style="left:${r.x}%;top:${labelTop}%">
+        <span class="src">${r.src}</span>
+        <span class="dst">${r.dst}<span class="ic">🔊</span></span></div>`;
+  }).join('');
+  langEl.innerHTML=`<span class="flag">${s.flag}</span><span class="from">${s.from}</span>
+    <span class="arrow">→</span><span class="to">English</span>`;
+}
+function boxW(r){const n=[...r.src].length;return r.vert? r.size*1.5 : Math.max(40,n*r.size*0.62);}
+function boxH(r){const n=[...r.src].length;return r.vert? Math.max(40,n*r.size*0.95) : r.size*1.5;}
+
+function select(i){
+  current=i;
+  [...tabsEl.children].forEach((b,j)=>b.classList.toggle('active',j===i));
+  renderScene(i);
+}
+function setStatus(t){statusEl.innerHTML=`<span class="cur">▮</span> ${t}`;}
+
+async function run(){
+  const my=++runId;
+  playBtn.textContent='● Translating…';
+  modePill.className='pill'; modePill.textContent='ON-DEVICE';
+  // reset overlay
+  document.querySelectorAll('.box,.label').forEach(e=>e.classList.remove('show'));
+  setStatus('INITIALIZING OPTICS · VISION FRAMEWORK');
+  await wait(450); if(my!==runId)return;
+
+  // scan sweep
+  setStatus('SCANNING ENVIRONMENT');
+  scan.classList.remove('run'); void scan.offsetWidth; scan.classList.add('run');
+  await wait(1500); if(my!==runId)return;
+
+  // detect boxes
+  const s=SCENES[current];
+  setStatus(`TEXT DETECTED · ${s.regions.length} REGIONS`);
+  for(let j=0;j<s.regions.length;j++){
+    document.getElementById('box'+j)?.classList.add('show');
+    await wait(180); if(my!==runId)return;
+  }
+  await wait(300); if(my!==runId)return;
+
+  // translate labels
+  setStatus(`TRANSLATING · ${s.from} → ENGLISH · ON-DEVICE`);
+  for(let j=0;j<s.regions.length;j++){
+    document.getElementById('lab'+j)?.classList.add('show');
+    await wait(240); if(my!==runId)return;
+  }
+  setStatus('REAL-TIME TRANSLATION ACTIVE');
+  modePill.className='pill live'; modePill.innerHTML='<span class="blink"></span>LIVE';
+  playBtn.textContent='▶ Run again';
+
+  if(loopChk.checked){
+    await wait(2600); if(my!==runId)return;
+    select((current+1)%SCENES.length);
+    run();
+  }
+}
+
+playBtn.onclick=run;
+document.getElementById('record').onclick=()=>{
+  document.body.classList.toggle('rec');
+  if(document.body.classList.contains('rec')){loopChk.checked=true;run();}
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.body.classList.remove('rec');});
+
+// init
+select(0);
+setStatus('READY · PRESS RUN');
+</script>
+</body>
+</html>
